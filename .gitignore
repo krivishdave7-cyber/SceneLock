@@ -1,0 +1,17 @@
+# Python environments
+.venv/
+.venv314/
+venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Secrets
+.env
+.env.*
+!.env.example
+.streamlit/secrets.toml
+
+# Logs
+*.log

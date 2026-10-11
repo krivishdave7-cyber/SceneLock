@@ -1,0 +1,8 @@
+streamlit>=1.40,<2
+rembg[cpu]
+Pillow>=10
+numpy
+scipy
+gradio_client
+streamlit-image-coordinates>=0.4.1,<0.5
+opencv-python-headless>=4.8,<5
