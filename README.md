@@ -1,81 +1,105 @@
-# SceneLock — background cleanup and matching update
+# SceneLock
 
-A Python/Streamlit prototype for creating product scenes while using the product from the original photograph.
+SceneLock helps turn an ordinary product photo into a styled scene.
 
-## Update your existing project on Windows
+I built it with small online sellers in mind. The idea is simple: start with a photo of your actual product, choose a background, and adjust the result until you're happy with it.
 
-1. Stop Streamlit by pressing Ctrl+C in its terminal.
-2. Make a backup copy of your existing Python files.
-3. Copy all seven Python files and requirements.txt from this folder into your existing SceneLOK project folder. Replace the same-named Python files. Keep your .venv folder and photographs. The new background_cleanup.py must sit beside app.py. This update also includes harmonize.py and the matching controls.
-4. Run these commands in the terminal inside your existing project folder:
+## What you can do
+
+- Remove a product’s background automatically.
+- Fix the cutout manually with Remove and Restore controls.
+- Upload a background or generate one using FLUX.1-schnell.
+- Resize, rotate, and reposition the product.
+- Adjust colour matching, softness, and shadows.
+- Remove small distractions from a background.
+- Download the finished scene or the cleaned background as a PNG.
+
+## Getting started on Windows
+
+Install Python 3.14, then download this repository using **Code → Download ZIP** and extract it.
+
+Open the extracted folder in VS Code. Open a PowerShell terminal inside the folder containing `app.py`, then run:
 
 ```powershell
+py -3.14 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install --upgrade pip
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 .\.venv\Scripts\python.exe -m streamlit run app.py
 ```
 
-Use Python 3.12 (rembg currently supports 3.11–3.13).
+Open the **Local URL** shown in the terminal. Keep the terminal running while using SceneLock.
 
-## Remove distractions from the background
+The first product upload may take longer because the background-removal model needs to download.
 
-After selecting a background, open **Clean up background** in step 2. Choose **Mark** and click spots using **Brush clicks**, or drag a box using **Rectangle drag**. **Unmark**, **Undo mark** and **Clear marks** fix the selection. Cover the object and its shadow with a small margin.
+### Running it again
 
-Click **Preview removal**, inspect the repaired surface, then choose **Apply removal** or **Discard preview**. Only applying updates the composed scene and final download. **Undo removal** keeps four repairs; **Reset background** restores the selected source. Switching to a different background starts fresh. Product mask edits stay separate. The working scene is capped at 1200 pixels on its longest side.
+Once installation is complete, open a terminal in the same folder and run:
 
-For cleanup only, skip the product upload: upload your photograph as the background in step 2, apply a repair, then click **Download background** beneath its preview. It saves a PNG of the current background with applied repairs, without a product or red selection overlay. Pending previews are not included. Undo and Reset also update this download. Background generation is available without a product, but only the Generate button makes that service call.
+```powershell
+.\.venv\Scripts\python.exe -m streamlit run app.py
+```
 
-This is local OpenCV Telea inpainting, not generative object reconstruction. It uses surrounding pixels and is most suitable for small distractions on simple surfaces. Large objects, lettering, structured wood grain and detailed surfaces can smear. Unselected background pixels and alpha remain unchanged. It operates before the separate product layer is composited, so cleanup does not erase that product.
+To stop the app, press **Ctrl+C** in the terminal.
 
-## Match the product to its scene
+## Using SceneLock
 
-The sidebar's **Match nearby background** option samples visible pixels around the placed cutout. It applies bounded exposure and ambient colour adjustments and optionally adds a little grain if the surrounding photo is noisier. Photo softness is adjustable; keep it low for lettering. A contact shadow and optional direction help seat the product on the surface.
+### 1. Add your product
 
-- Start with Match strength 45, Photo softness 0.3 and Match photo grain enabled.
-- Compare **Before / after matching**. Both views use the same placement and shadow.
-- Uncheck matching or set Match strength to 0 to preserve the placed cutout's RGB exactly.
-- Matching starts from the original placed cutout on every rerun; it never compounds previous corrections.
-- It runs locally with NumPy/SciPy/Pillow, makes no generation calls and needs no extra package.
-- It preserves the alpha silhouette and does not redraw the product. When enabled, it changes colour/texture; it is not pixel-preserving and is not a physical relighting or perspective model. A tabletop's colour is only a rough clue to ambient light. Reflective, transparent and strongly mismatched lighting may still look wrong.
+Upload a JPG or PNG. A clear photo of one opaque product against a contrasting background is a good starting point.
 
-## Cutout correction controls
+Check the automatic cutout. Use **Remove** to erase unwanted areas and **Restore** to bring missing parts back. Undo and reset are available if you make a mistake.
 
-The page follows three steps: add a product, choose a scene, then finish and download. Upload a picture is selected by default, so you can use the app without calling the background generator. The finished picture has separate scene, comparison and cutout views. Reset placement restores the starting size, angle, position and shadow without changing the cutout or background.
+### 2. Choose your background
 
-After uploading a product, open **Fix the product cutout**.
+Upload a background or use the generation option.
 
-- Red tint means that area will be removed.
-- **Remove** erases a circular patch from the mask.
-- **Restore** brings a circular patch back from the original photograph.
-- **Undo** remembers the last ten clicks.
-- **Reset cutout** restores the AI's initial cleaned mask.
-- Use a small brush near edges. Click spots; continuous drag painting is not implemented.
+You can also clean up small distractions in the background. Mark the area, preview the removal, and apply it when you're satisfied. For background cleanup alone, you can skip uploading a product.
 
-Corrections update the final composition and download. They persist across sliders and background changes in the current browser session. Uploading another product starts a new correction history. A new session or server restart clears them.
+### 3. Refine and download
 
-## Existing controls
+Adjust the product’s size, angle, and position. Try the matching and shadow controls, then compare the result before and after matching.
 
-AI background generation, uploaded backgrounds, size, rotation, position, shadow strength and PNG export are included. Changing placement or the cutout reuses the existing background. Only the Generate button calls the hosted image model.
+Download the finished scene as a PNG. If you only cleaned a background, use **Download background**.
 
-## Scope and honest claims
+## How it works
 
-- Start with one opaque product. The initial automatic mask keeps its largest connected component; use Restore if this removes a genuine disconnected product part.
-- Product RGB values begin with the input photo. Scene matching modifies their appearance when enabled. Scaling and rotation resample pixels, and partially transparent edges blend with the new background. Do not claim the result is pixel-for-pixel identical to the source.
-- The mask can be wrong; manual review is essential to product completeness.
-- Shadows are a visual approximation, not physical lighting reconstruction.
-- The public FLUX demo has free quotas, queues and changing availability. It is a prototype dependency, not guaranteed production hosting. Upload a previously generated background if it is unavailable.
-- Code syntax, matching invariants, alpha preservation, deterministic grain, placement/shadow behaviour, real OpenCV small-object repair, unselected-pixel preservation, simulated brush/rectangle selection, preview/apply/discard/undo/reset and download flow were checked offline. Live generation and real browser selection gestures still need testing on your computer.
+The interface runs on Streamlit. Product background removal uses rembg with a pretrained U2Net model.
+
+Pillow, NumPy, and SciPy handle image processing, matching, and composition. Background cleanup uses OpenCV’s Telea inpainting, which fills selected areas using surrounding pixels.
+
+Optional background generation connects to a hosted FLUX.1-schnell demo through the Gradio client.
+
+## Things to keep in mind
+
+SceneLock is a prototype, and the results still need a human check.
+
+- Automatic cutouts can miss edges or small product parts.
+- Matching changes the product’s colour and appearance. Check colours, labels, and logos before using an image.
+- Shadows are an approximation. The app does not reconstruct physical lighting or change the product’s perspective.
+- Background cleanup works best on small distractions and simple surfaces. Large objects or detailed textures can leave smudges.
+- Background generation requires internet access and depends on the hosted service’s quotas, queues, and availability.
+- Edits are kept in the current session. Download your results before closing or restarting the app.
+
+## Development and AI assistance
+
+SceneLock began as a prototype before the Banana Hacks hacking window. Later work included setup and Python compatibility fixes.
+
+ChatGPT assisted with coding and troubleshooting. The project uses existing pretrained models and open-source libraries; I did not train those models.
 
 ## Credits
 
-- Streamlit: https://streamlit.io/
-- rembg and its U2Net model integration: https://github.com/danielgatis/rembg
-- U2Net: https://github.com/xuebinqin/U-2-Net
-- Pillow: https://pillow.readthedocs.io/
-- NumPy and SciPy: https://numpy.org/ and https://scipy.org/
-- OpenCV local inpainting: https://docs.opencv.org/4.x/df/d3d/tutorial_py_inpainting.html
-- streamlit-image-coordinates by blackary: https://github.com/blackary/streamlit-image-coordinates
-- FLUX.1-schnell by Black Forest Labs: https://huggingface.co/black-forest-labs/FLUX.1-schnell
-- Hosted demo used by background.py: https://huggingface.co/spaces/black-forest-labs/FLUX.1-schnell
-- Gradio Python client: https://github.com/gradio-app/gradio
+Thanks to the tools and projects that made SceneLock possible:
 
-This was made with the help of Chat-GPT.according to complaince of the hackathon guidelines.
+- [Streamlit](https://streamlit.io/)
+- [rembg](https://github.com/danielgatis/rembg)
+- [U2Net](https://github.com/xuebinqin/U-2-Net)
+- [Pillow](https://pillow.readthedocs.io/)
+- [NumPy](https://numpy.org/)
+- [SciPy](https://scipy.org/)
+- [OpenCV](https://opencv.org/)
+- [streamlit-image-coordinates](https://github.com/blackary/streamlit-image-coordinates)
+- [FLUX.1-schnell by Black Forest Labs](https://huggingface.co/black-forest-labs/FLUX.1-schnell)
+- [Hosted FLUX.1-schnell demo](https://huggingface.co/spaces/black-forest-labs/FLUX.1-schnell)
+- [Gradio](https://github.com/gradio-app/gradio)
+
+Third-party tools and models retain their own licences.
