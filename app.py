@@ -53,10 +53,10 @@ def prepare_product(photo_bytes):
 
 
 PLACEMENT_DEFAULTS = {
-    "product_size": 80,
-    "product_angle": 0,
-    "product_horizontal": 0,
-    "product_vertical": 0,
+    "product_size": 40,
+    "product_angle": 10,
+    "product_horizontal": 10,
+    "product_vertical": 10,
     "shadow_strength": 25,
 }
 
